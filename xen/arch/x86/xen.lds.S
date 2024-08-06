@@ -269,6 +269,10 @@ SECTIONS
        __ctors_end = .;
   } PHDR(text)
 
+  DECL_SECTION(.init.trampoline) {
+       *(.init.trampoline)
+  } PHDR(text)
+
 #ifndef EFI
   /*
    * With --orphan-sections=warn (or =error) we need to handle certain linker
