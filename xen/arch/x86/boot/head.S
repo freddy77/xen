@@ -771,8 +771,19 @@ FUNC_LOCAL(reloc)
         .incbin "reloc.bin"
 END(reloc)
 
+#include "x86_64.S"
+
+        /*
+         * Put trampoline in a separate section.
+         *
+         * Mark the section as writeable but not executable.
+         * This is required to satisfy UEFI CA memory mitigation requirements.
+         * We won't execute the trampoline at this location so not
+         * having executable flag won't be an issue.
+         * However to make easier to dump it even if code is in a data
+         * section this section is be separate even on the final executable.
+         */
+        .section .init.trampoline, "aw", @progbits
 ENTRY(trampoline_start)
 #include "trampoline.S"
 ENTRY(trampoline_end)
-
-#include "x86_64.S"
