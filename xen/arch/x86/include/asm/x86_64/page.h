@@ -4,8 +4,8 @@
 
 #define __XEN_VIRT_START        XEN_VIRT_START
 
-#define VADDR_TOP_BIT           (1UL << (VADDR_BITS - 1))
-#define CANONICAL_MASK          (~0UL & ~VADDR_MASK)
+#define VADDR_TOP_BIT           (UINT64_C(1) << (VADDR_BITS - 1))
+#define CANONICAL_MASK          (~UINT64_C(0) & ~VADDR_MASK)
 
 #define is_canonical_address(x) (((long)(x) >> 47) == ((long)(x) >> 63))
 

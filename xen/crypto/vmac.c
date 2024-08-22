@@ -11,7 +11,9 @@
 #include <xen/types.h>
 #include <xen/lib.h>
 #include <crypto/vmac.h>
+#ifndef UINT64_C
 #define UINT64_C(x)  x##ULL
+#endif
 /* end for Xen */
 
 /* Enable code tuned for 64-bit registers; otherwise tuned for 32-bit */

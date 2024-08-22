@@ -51,11 +51,15 @@
 #elif (_MSC_VER)                  /* Microsoft C does not have stdint.h    */
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
+#ifndef UINT64_C
 #define UINT64_C(v) v ## UI64
+#endif
 #else                             /* Guess sensibly - may need adaptation  */
 typedef unsigned int uint32_t;
 typedef unsigned long long uint64_t;
+#ifndef UINT64_C
 #define UINT64_C(v) v ## ULL
+#endif
 #endif
 
 /* --------------------------------------------------------------------------

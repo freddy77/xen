@@ -1384,9 +1384,9 @@ void asmlinkage __init noreturn __start_xen(unsigned long mbi_p)
         }
 
         if ( e > min(HYPERVISOR_VIRT_END - DIRECTMAP_VIRT_START,
-                     1UL << (PAGE_SHIFT + 32)) )
+                     UINT64_C(1) << (PAGE_SHIFT + 32)) )
             e = min(HYPERVISOR_VIRT_END - DIRECTMAP_VIRT_START,
-                    1UL << (PAGE_SHIFT + 32));
+                    UINT64_C(1) << (PAGE_SHIFT + 32));
 #define reloc_size ((__pa(__2M_rwdata_end) + mask) & ~mask)
         /* Is the region suitable for relocating Xen? */
         if ( !xen_phys_start && e <= limit )

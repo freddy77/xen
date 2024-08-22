@@ -86,10 +86,10 @@
 #include <xen/const.h>
 
 #define PML4_ENTRY_BITS  39
-#define PML4_ENTRY_BYTES (_AC(1,UL) << PML4_ENTRY_BITS)
+#define PML4_ENTRY_BYTES (UINT64_C(1) << PML4_ENTRY_BITS)
 #define PML4_ADDR(_slot)                              \
-    (((_AC(_slot, UL) >> 8) * _AC(0xffff000000000000,UL)) | \
-     (_AC(_slot, UL) << PML4_ENTRY_BITS))
+    (((UINT64_C(_slot) >> 8) * UINT64_C(0xffff000000000000)) | \
+     (UINT64_C(_slot) << PML4_ENTRY_BITS))
 
 /*
  * Memory layout:

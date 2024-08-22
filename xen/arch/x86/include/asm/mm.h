@@ -20,7 +20,7 @@
 #define PFN_ORDER(_pfn) ((_pfn)->v.free.order)
 
 #define PG_shift(idx)   (BITS_PER_LONG - (idx))
-#define PG_mask(x, idx) (x ## UL << PG_shift(idx))
+#define PG_mask(x, idx) (UINT64_C(x) << PG_shift(idx))
 
  /* The following page types are MUTUALLY EXCLUSIVE. */
 #define PGT_none          PG_mask(0, 3)  /* no special uses of this page   */
@@ -59,7 +59,7 @@
 
  /* Count of uses of this frame as its current type. */
 #define PGT_count_width   PG_shift(9)
-#define PGT_count_mask    ((1UL<<PGT_count_width)-1)
+#define PGT_count_mask    ((UINT64_C(1)<<PGT_count_width)-1)
 
 /* Are the 'type mask' bits identical? */
 #define PGT_type_equal(x, y) (!(((x) ^ (y)) & PGT_type_mask))
@@ -97,7 +97,7 @@
 #else
 #define PGC_count_width   PG_shift(6)
 #endif
-#define PGC_count_mask    ((1UL<<PGC_count_width)-1)
+#define PGC_count_mask    ((UINT64_C(1)<<PGC_count_width)-1)
 
 /*
  * Page needs to be scrubbed. Since this bit can only be set on a page that is
@@ -499,9 +499,9 @@ static inline int get_page_and_type(struct page_info *page,
  */
 #undef  machine_to_phys_mapping
 #define machine_to_phys_mapping  ((unsigned long *)RDWR_MPT_VIRT_START)
-#define INVALID_M2P_ENTRY        (~0UL)
-#define VALID_M2P(_e)            (!((_e) & (1UL<<(BITS_PER_LONG-1))))
-#define SHARED_M2P_ENTRY         (~0UL - 1UL)
+#define INVALID_M2P_ENTRY        (~UINT64_C(0))
+#define VALID_M2P(_e)            (!((_e) & (UINT64_C(1)<<(BITS_PER_LONG-1))))
+#define SHARED_M2P_ENTRY         (~UINT64_C(0) - UINT64_C(1))
 #define SHARED_M2P(_e)           ((_e) == SHARED_M2P_ENTRY)
 
 /*

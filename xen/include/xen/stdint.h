@@ -30,4 +30,6 @@ typedef __UINT64_TYPE__    uint64_t;
 
 #endif
 
+#include <xen/const.h>
+
 #endif /* __XEN_STDINT_H__ */
