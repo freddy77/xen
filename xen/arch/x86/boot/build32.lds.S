@@ -49,6 +49,14 @@ SECTIONS
         DECLARE_IMPORT(__trampoline_seg_stop);
         DECLARE_IMPORT(trampoline_phys);
         DECLARE_IMPORT(boot_vid_info);
+        DECLARE_IMPORT(l2_xenmap);
+        DECLARE_IMPORT(l2_directmap);
+        DECLARE_IMPORT(l2_bootmap);
+        DECLARE_IMPORT(l3_bootmap);
+        DECLARE_IMPORT(_start);
+        DECLARE_IMPORT(_end);
+        DECLARE_IMPORT(xen_phys_start);
+        //DECLARE_IMPORT();
         . = . + GAP;
         *(.text)
         *(.text.*)
