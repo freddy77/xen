@@ -8,6 +8,7 @@
 #include <public/arch-x86/xen.h>
 #define __XEN__ 1
 #include <xen/mm.h>
+#include <asm/trampoline.h>
 
 /* Disable no execute setting. */
 #undef _PAGE_NX
@@ -73,4 +74,12 @@ void setup_pages64(void)
         l2_directmap[i] = pte;
     }
 #undef l2_4G_offset
+
+    /* Map l1_bootmap[] into l2_bootmap[0]. */
+    l2_bootmap[0] = l2e_from_paddr((unsigned long)l1_bootmap,
+                                   __PAGE_HYPERVISOR);
+
+    /* Map the permanent trampoline page into l1_bootmap[]. */
+    l1_bootmap[(unsigned long)trampoline_phys >> PAGE_SHIFT] =
+        l1e_from_paddr((unsigned long)trampoline_phys, __PAGE_HYPERVISOR_RX);
 }

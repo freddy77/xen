@@ -51,6 +51,7 @@ SECTIONS
         DECLARE_IMPORT(boot_vid_info);
         DECLARE_IMPORT(l2_xenmap);
         DECLARE_IMPORT(l2_directmap);
+        DECLARE_IMPORT(l1_bootmap);
         DECLARE_IMPORT(l2_bootmap);
         DECLARE_IMPORT(l3_bootmap);
         DECLARE_IMPORT(_start);
