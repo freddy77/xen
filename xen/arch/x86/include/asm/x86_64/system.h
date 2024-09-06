@@ -5,6 +5,7 @@
     ((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),            \
                                    (unsigned long)(n),sizeof(*(ptr))))
 
+#ifndef __i386__
 /*
  * Atomic 16 bytes compare and exchange.  Compare OLD with MEM, if
  * identical, store NEW in MEM.  Return the initial value in MEM.
@@ -58,5 +59,6 @@ static always_inline __uint128_t cmpxchg16b_local_(
     BUILD_BUG_ON(sizeof(*(n)) != sizeof(__uint128_t));     \
     __cmpxchg16b(_p, (void *)(o), (void *)(n));            \
 })
+#endif
 
 #endif /* __X86_64_SYSTEM_H__ */

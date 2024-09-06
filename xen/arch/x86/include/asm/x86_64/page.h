@@ -7,11 +7,11 @@
 #define VADDR_TOP_BIT           (UINT64_C(1) << (VADDR_BITS - 1))
 #define CANONICAL_MASK          (~UINT64_C(0) & ~VADDR_MASK)
 
-#define is_canonical_address(x) (((long)(x) >> 47) == ((long)(x) >> 63))
+#define is_canonical_address(x) (((long long)(x) >> 47) == ((long long)(x) >> 63))
 
 #ifndef __ASSEMBLY__
 
-static inline unsigned long canonicalise_addr(unsigned long addr)
+static inline unsigned long canonicalise_addr(unsigned long long addr)
 {
     if ( addr & VADDR_TOP_BIT )
         return addr | CANONICAL_MASK;
@@ -49,6 +49,7 @@ static inline unsigned long virt_to_maddr(unsigned long va)
 }
 #define virt_to_maddr(va) virt_to_maddr((unsigned long)(va))
 
+#ifndef __i386__
 static inline void *maddr_to_virt(unsigned long ma)
 {
     /* Offset in the direct map, accounting for pdx compression */
@@ -57,6 +58,7 @@ static inline void *maddr_to_virt(unsigned long ma)
     ASSERT(va_offset < DIRECTMAP_SIZE);
     return (void *)(DIRECTMAP_VIRT_START + va_offset);
 }
+#endif
 
 /* read access (should only be used for debug printk's) */
 typedef u64 intpte_t;

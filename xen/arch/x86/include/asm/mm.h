@@ -341,6 +341,7 @@ void init_frametable(void);
 
 #define PDX_GROUP_SHIFT L2_PAGETABLE_SHIFT
 
+#ifndef __i386__
 /* Convert between Xen-heap virtual addresses and page-info structures. */
 static inline struct page_info *__virt_to_page(const void *v)
 {
@@ -369,6 +370,7 @@ static inline void *__page_to_virt(const struct page_info *pg)
                     (sizeof(*pg) / (sizeof(*pg) & -sizeof(*pg))) *
                     (PAGE_SIZE / (sizeof(*pg) & -sizeof(*pg))));
 }
+#endif
 
 int devalidate_page(struct page_info *page, unsigned long type,
                          int preemptible);

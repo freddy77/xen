@@ -161,6 +161,7 @@ do {                                                     \
         (1UL << 47);                                     \
 } while (0)
 
+#ifndef __i386__
 static inline void _set_gate_lower(idt_entry_t *gate, unsigned long type,
                                    unsigned long dpl, void *addr)
 {
@@ -190,6 +191,7 @@ static inline void _update_gate_addr_lower(idt_entry_t *gate, void *addr)
 
     _write_gate_lower(gate, &idte);
 }
+#endif
 
 #define _set_tssldt_desc(desc,addr,limit,type)           \
 do {                                                     \

@@ -16,6 +16,11 @@
 #include <xen/macros.h>
 #include <xen/types.h>
 
+#define __XEN_TOOLS__ 1
+#undef __XEN__
+#include <public/arch-x86/xen.h>
+#define __XEN__ 1
+
 #include <xen/kconfig.h>
 #include <xen/multiboot.h>
 #include <xen/multiboot2.h>

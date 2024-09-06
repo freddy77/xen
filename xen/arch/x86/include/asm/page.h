@@ -110,22 +110,30 @@
 #ifndef __ASSEMBLY__
 static inline l1_pgentry_t l1e_from_paddr(paddr_t pa, unsigned int flags)
 {
+#ifndef __i386__
     ASSERT((pa & ~(PADDR_MASK & PAGE_MASK)) == 0);
+#endif
     return (l1_pgentry_t) { pa | put_pte_flags(flags) };
 }
 static inline l2_pgentry_t l2e_from_paddr(paddr_t pa, unsigned int flags)
 {
+#ifndef __i386__
     ASSERT((pa & ~(PADDR_MASK & PAGE_MASK)) == 0);
+#endif
     return (l2_pgentry_t) { pa | put_pte_flags(flags) };
 }
 static inline l3_pgentry_t l3e_from_paddr(paddr_t pa, unsigned int flags)
 {
+#ifndef __i386__
     ASSERT((pa & ~(PADDR_MASK & PAGE_MASK)) == 0);
+#endif
     return (l3_pgentry_t) { pa | put_pte_flags(flags) };
 }
 static inline l4_pgentry_t l4e_from_paddr(paddr_t pa, unsigned int flags)
 {
+#ifndef __i386__
     ASSERT((pa & ~(PADDR_MASK & PAGE_MASK)) == 0);
+#endif
     return (l4_pgentry_t) { pa | put_pte_flags(flags) };
 }
 #endif /* !__ASSEMBLY__ */
