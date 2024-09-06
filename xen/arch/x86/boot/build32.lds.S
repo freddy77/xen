@@ -57,6 +57,10 @@ SECTIONS
         DECLARE_IMPORT(_start);
         DECLARE_IMPORT(_end);
         DECLARE_IMPORT(xen_phys_start);
+        DECLARE_IMPORT(boot_tsc_stamp);
+        DECLARE_IMPORT(boot_cpu_data);
+        DECLARE_IMPORT(trampoline_efer);
+        DECLARE_IMPORT(trampoline_misc_enable_off);
         //DECLARE_IMPORT();
         . = . + GAP;
         *(.text)

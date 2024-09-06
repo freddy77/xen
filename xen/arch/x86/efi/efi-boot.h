@@ -680,30 +680,16 @@ static void __init efi_arch_handle_module(const struct file *file,
     efi_bs->FreePool(ptr);
 }
 
+extern const char *detect_cpu64(void);
+
 static void __init efi_arch_cpu(void)
 {
-    uint32_t eax = cpuid_eax(0x80000000U);
-    uint32_t *caps = boot_cpu_data.x86_capability;
+    const char *err = detect_cpu64();
 
-    boot_tsc_stamp = rdtsc();
-
-    caps[FEATURESET_1c] = cpuid_ecx(1);
-
-    if ( (eax >> 16) == 0x8000 && eax > 0x80000000U )
+    if ( err )
     {
-        caps[FEATURESET_e1d] = cpuid_edx(0x80000001U);
-
-        /*
-         * This check purposefully doesn't use cpu_has_nx because
-         * cpu_has_nx bypasses the boot_cpu_data read if Xen was compiled
-         * with CONFIG_REQUIRE_NX
-         */
-        if ( IS_ENABLED(CONFIG_REQUIRE_NX) &&
-             !boot_cpu_has(X86_FEATURE_NX) )
-            blexit(L"This build of Xen requires NX support");
-
-        if ( cpu_has_nx )
-            trampoline_efer |= EFER_NXE;
+        // TODO, use err
+        blexit(L"Error setting up CPU");
     }
 }
 

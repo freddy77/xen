@@ -119,12 +119,10 @@ multiboot2_header:
 
         .section .init.rodata, "a", @progbits
 
-.Lbad_cpu_msg: .asciz "ERR: Not a 64-bit CPU!"
 .Lbad_ldr_msg: .asciz "ERR: Not a Multiboot bootloader!"
 .Lbad_ldr_nbs: .asciz "ERR: Bootloader shutdown EFI x64 boot services!"
 .Lbad_efi_msg: .asciz "ERR: EFI IA-32 platforms are not supported!"
 .Lbag_alg_msg: .asciz "ERR: Xen must be loaded at a 2Mb boundary!"
-.Lno_nx_msg:   .asciz "ERR: Not an NX-capable CPU!"
 
         .section .init.data, "aw", @progbits
         .align 4
@@ -146,20 +144,12 @@ efi_platform:
 
 early_error: /* Here to improve the disassembly. */
 
-.Lbad_cpu:
-        mov     $sym_offs(.Lbad_cpu_msg), %ecx
-        jmp     .Lget_vtb
 .Lnot_multiboot:
         mov     $sym_offs(.Lbad_ldr_msg), %ecx
         jmp     .Lget_vtb
 .Lnot_aligned:
         mov     $sym_offs(.Lbag_alg_msg), %ecx
         jmp     .Lget_vtb
-#ifdef CONFIG_REQUIRE_NX
-.Lno_nx:
-        mov     $sym_offs(.Lno_nx_msg), %ecx
-        jmp     .Lget_vtb
-#endif
 .Lmb2_no_bs:
         /*
          * Ditto. Additionally, here there is a chance that Xen was started
@@ -537,81 +527,9 @@ trampoline_setup:
          * reserved for trampoline code and data.
          */
 
-        /* Interrogate CPU extended features via CPUID. */
-        mov     $1, %eax
-        cpuid
-        mov     %ecx, CPUINFO_FEATURE_OFFSET(X86_FEATURE_HYPERVISOR) + sym_esi(boot_cpu_data)
-
-        mov     $0x80000000,%eax
-        cpuid
-        shld    $16,%eax,%ecx
-        xor     %edx,%edx
-        cmp     $0x8000,%cx         # any function @ 0x8000xxxx?
-        jne     1f
-        cmp     $0x80000000,%eax    # any function > 0x80000000?
-        jbe     1f
-        mov     $0x80000001,%eax
-        cpuid
-1:      mov     %edx, CPUINFO_FEATURE_OFFSET(X86_FEATURE_LM) + sym_esi(boot_cpu_data)
-
-        /* Check for availability of long mode. */
-        bt      $cpufeat_bit(X86_FEATURE_LM),%edx
-        jnc     .Lbad_cpu
-
-        /*
-         * Check for NX
-         *   - If Xen was compiled requiring it simply assert it's
-         *     supported. The trampoline already has the right constant.
-         *   - Otherwise, update the trampoline EFER mask accordingly.
-         */
-        bt      $cpufeat_bit(X86_FEATURE_NX), %edx
-        jc     .Lgot_nx
-
-        /*
-         * NX appears to be unsupported, but it might be hidden.
-         *
-         * The feature is part of the AMD64 spec, but the very first Intel
-         * 64bit CPUs lacked the feature, and thereafter there was a
-         * firmware knob to disable the feature. Undo the disable if
-         * possible.
-         *
-         * All 64bit Intel CPUs support this MSR. If virtualised, expect
-         * the hypervisor to either emulate the MSR or give us NX.
-         */
-        xor     %eax, %eax
-        cpuid
-        cmp     $X86_VENDOR_INTEL_EBX, %ebx
-        jnz     .Lno_nx
-        cmp     $X86_VENDOR_INTEL_EDX, %edx
-        jnz     .Lno_nx
-        cmp     $X86_VENDOR_INTEL_ECX, %ecx
-        jnz     .Lno_nx
-
-        /* Clear the XD_DISABLE bit */
-        mov     $MSR_IA32_MISC_ENABLE, %ecx
-        rdmsr
-        btr     $2, %edx
-        jnc     .Lno_nx
-        wrmsr
-        orb     $MSR_IA32_MISC_ENABLE_XD_DISABLE >> 32, 4 + sym_esi(trampoline_misc_enable_off)
-
-        /* Check again for NX */
-        mov     $0x80000001, %eax
-        cpuid
-        bt      $cpufeat_bit(X86_FEATURE_NX), %edx
-        jnc     .Lno_nx
-
-.Lgot_nx:
-#ifndef CONFIG_REQUIRE_NX
-        /* Adjust EFER given that NX is present */
-        orb     $EFER_NXE >> 8, 1 + sym_esi(trampoline_efer)
-.Lno_nx:
-#endif
-
-        /* Stash TSC to calculate a good approximation of time-since-boot */
-        rdtsc
-        mov     %eax,     sym_esi(boot_tsc_stamp)
-        mov     %edx, 4 + sym_esi(boot_tsc_stamp)
+        call    detect_cpu32
+        test    %eax, %eax
+        jnz     .Ldirect_error
 
         /* Relocate pagetables to point at Xen's current location in memory. */
         mov     $_PAGE_PRESENT, %edx

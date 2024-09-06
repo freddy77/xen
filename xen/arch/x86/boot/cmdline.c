@@ -60,7 +60,7 @@ static size_t strlen(const char *s)
     return sc - s;
 }
 
-static int strncmp(const char *cs, const char *ct, size_t count)
+int strncmp(const char *cs, const char *ct, size_t count)
 {
     unsigned char c1, c2;
 
