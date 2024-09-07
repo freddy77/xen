@@ -51,6 +51,9 @@ SECTIONS
         DECLARE_IMPORT(__trampoline_seg_stop);
         DECLARE_IMPORT(trampoline_phys);
         DECLARE_IMPORT(boot_vid_info);
+        DECLARE_IMPORT(multiboot_ptr);
+        DECLARE_IMPORT(pvh_boot);
+        DECLARE_IMPORT(pvh_start_info_pa);
         . = . + GAP;
         *(.text)
         *(.text.*)

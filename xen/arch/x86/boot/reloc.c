@@ -17,13 +17,15 @@
 #include <xen/types.h>
 
 #include <xen/kconfig.h>
-#include <xen/multiboot.h>
 #include <xen/multiboot2.h>
 #include <xen/page-size.h>
+#include <xen/bug.h>
 
 #include <asm/trampoline.h>
+#include <asm/setup.h>
 
 #include <public/arch-x86/hvm/start_info.h>
+#include <asm/guest/pvh-boot.h>
 
 #ifdef CONFIG_VIDEO
 # include "video.h"
@@ -347,27 +349,41 @@ static multiboot_info_t *mbi2_reloc(uint32_t mbi_in, memctx *ctx)
 }
 
 /* SAF-1-safe */
-void *reloc(uint32_t magic, uint32_t in)
+void reloc(uint32_t magic, uint32_t in)
 {
     memctx ctx = { trampoline_phys + TRAMPOLINE_HEAP_END };
+
+    void *res;
 
     switch ( magic )
     {
     case MULTIBOOT_BOOTLOADER_MAGIC:
-        return mbi_reloc(in, &ctx);
+        res = mbi_reloc(in, &ctx);
+        break;
 
     case MULTIBOOT2_BOOTLOADER_MAGIC:
-        return mbi2_reloc(in, &ctx);
+        res = mbi2_reloc(in, &ctx);
+        break;
 
     case XEN_HVM_START_MAGIC_VALUE:
         if ( IS_ENABLED(CONFIG_PVH_GUEST) )
-            return pvh_info_reloc(in, &ctx);
+        {
+            res = pvh_info_reloc(in, &ctx);
+            break;
+        }
         /* Fallthrough */
 
     default:
         /* Nothing we can do */
-        return NULL;
+        res = NULL;
     }
+
+#ifdef CONFIG_PVH_GUEST
+    if ( pvh_boot )
+        pvh_start_info_pa = (unsigned long)res;
+#endif
+
+    multiboot_ptr = (unsigned long)res;
 }
 
 /*

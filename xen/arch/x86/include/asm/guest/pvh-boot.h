@@ -13,6 +13,7 @@
 #ifdef CONFIG_PVH_GUEST
 
 extern bool pvh_boot;
+extern uint32_t pvh_start_info_pa;
 
 void pvh_init(multiboot_info_t **mbi, module_t **mod);
 void pvh_print_info(void);
