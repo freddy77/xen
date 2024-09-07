@@ -500,16 +500,6 @@ trampoline_setup:
         /*      reloc(magic/eax, info/edx) using fastcall. */
         call    reloc
 
-#ifdef CONFIG_PVH_GUEST
-        cmpb    $0, sym_esi(pvh_boot)
-        je      1f
-        mov     %eax, sym_esi(pvh_start_info_pa)
-        jmp     2f
-#endif
-1:
-        mov     %eax, sym_esi(multiboot_ptr)
-2:
-
         /*
          * Now trampoline_phys points to the following structure (lowest address
          * is at the bottom):
