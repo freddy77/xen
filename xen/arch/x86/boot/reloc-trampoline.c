@@ -7,13 +7,7 @@
 extern const int32_t __trampoline_rel_start[], __trampoline_rel_stop[];
 extern const int32_t __trampoline_seg_start[], __trampoline_seg_stop[];
 
-#if defined(__i386__)
-void reloc_trampoline32(void)
-#elif defined (__x86_64__)
-void reloc_trampoline64(void)
-#else
-#error Unknow architecture
-#endif
+void reloc_trampoline(void)
 {
     unsigned long phys = trampoline_phys;
     const int32_t *trampoline_ptr;

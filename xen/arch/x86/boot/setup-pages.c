@@ -14,13 +14,7 @@
 #undef _PAGE_NX
 #define _PAGE_NX 0
 
-#if defined(__i386__)
-void setup_pages32(void)
-#elif defined (__x86_64__)
-void setup_pages64(void)
-#else
-#error Unknow architecture
-#endif
+void setup_pages(void)
 {
     unsigned int i;
 

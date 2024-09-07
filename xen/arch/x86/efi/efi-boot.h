@@ -102,7 +102,7 @@ static void __init efi_arch_relocate_image(unsigned long delta)
     }
 }
 
-void reloc_trampoline64(void);
+void reloc_trampoline(void);
 
 static void __init relocate_trampoline(unsigned long phys)
 {
@@ -111,7 +111,7 @@ static void __init relocate_trampoline(unsigned long phys)
     if ( !efi_enabled(EFI_LOADER) )
         return;
 
-    reloc_trampoline64();
+    reloc_trampoline();
 }
 
 static void __init place_string(u32 *addr, const char *s)
@@ -616,7 +616,7 @@ static void __init efi_arch_edid(EFI_HANDLE gop_handle)
 #endif
 }
 
-void setup_pages64(void);
+void setup_pages(void);
 
 static void __init efi_arch_memory_setup(void)
 {
@@ -643,7 +643,7 @@ static void __init efi_arch_memory_setup(void)
     if ( !efi_enabled(EFI_LOADER) )
         return;
 
-    setup_pages64();
+    setup_pages();
 }
 
 static void __init efi_arch_handle_module(const struct file *file,
@@ -680,11 +680,11 @@ static void __init efi_arch_handle_module(const struct file *file,
     efi_bs->FreePool(ptr);
 }
 
-extern const char *detect_cpu64(void);
+extern const char *detect_cpu(void);
 
 static void __init efi_arch_cpu(void)
 {
-    const char *err = detect_cpu64();
+    const char *err = detect_cpu();
 
     if ( err )
     {

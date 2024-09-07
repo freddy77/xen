@@ -491,6 +491,28 @@ trampoline_setup:
          * Called on legacy BIOS and EFI platforms.
          */
 
+        /* Relocate pagetables to point at Xen's current location in memory. */
+        mov     $_PAGE_PRESENT, %edx
+        lea     sym_esi(__page_tables_start), %edi
+        lea     sym_esi(__page_tables_end), %ecx
+
+1:      test    %edx, (%edi) /* if page present */
+        jz      2f
+        add     %esi, (%edi) /* pte += base */
+2:      add     $8, %edi
+
+        cmp     %ecx, %edi
+        jb      1b
+
+        .if !IS_ALIGNED(sym_offs(0), 1 << L2_PAGETABLE_SHIFT)
+        .error "Symbol offset calculation breaks alignment"
+        .endif
+
+        /* Check that the image base is aligned. */
+        lea     sym_esi(_start), %edi
+        test    $(1 << L2_PAGETABLE_SHIFT) - 1, %edi
+        jnz     .Lnot_aligned
+
         /* Save Xen image load base address for later use. */
         mov     %esi, sym_esi(xen_phys_start)
         mov     %esi, sym_esi(trampoline_xen_phys_start)
@@ -498,7 +520,9 @@ trampoline_setup:
         /* Save Multiboot / PVH info struct (after relocation) for later use. */
         mov     %ebx, %edx          /* Multiboot / PVH information address. */
         /*      reloc(magic/eax, info/edx) using fastcall. */
-        call    reloc
+        call    common_setup
+        test    %eax, %eax
+        jnz     .Ldirect_error
 
         /*
          * Now trampoline_phys points to the following structure (lowest address
@@ -516,37 +540,6 @@ trampoline_setup:
          * region to the end of the trampoline. The rest of TRAMPOLINE_SPACE is
          * reserved for trampoline code and data.
          */
-
-        call    detect_cpu32
-        test    %eax, %eax
-        jnz     .Ldirect_error
-
-        /* Relocate pagetables to point at Xen's current location in memory. */
-        mov     $_PAGE_PRESENT, %edx
-        lea     sym_esi(__page_tables_start), %eax
-        lea     sym_esi(__page_tables_end), %edi
-
-1:      test    %edx, (%eax) /* if page present */
-        jz      2f
-        add     %esi, (%eax) /* pte += base */
-2:      add     $8, %eax
-
-        cmp     %edi, %eax
-        jb      1b
-
-        .if !IS_ALIGNED(sym_offs(0), 1 << L2_PAGETABLE_SHIFT)
-        .error "Symbol offset calculation breaks alignment"
-        .endif
-
-        /* Check that the image base is aligned. */
-        lea     sym_esi(_start), %eax
-        test    $(1 << L2_PAGETABLE_SHIFT) - 1, %eax
-        jnz     .Lnot_aligned
-
-        call    setup_pages32
-
-        /* Apply relocations to bootstrap trampoline. */
-        call    reloc_trampoline32
 
         /* Do not parse command line on EFI platform here. */
         cmpb    $0, sym_esi(efi_platform)

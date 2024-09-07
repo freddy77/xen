@@ -18,16 +18,11 @@
 #include <asm/cpufeatureset.h>
 
 #if defined(__i386__)
-
 /* cmdline.c */
 int strncmp(const char *cs, const char *ct, size_t count);
-
-const char *detect_cpu32(void)
-#elif defined (__x86_64__)
-const char *detect_cpu64(void)
-#else
-#error Unknow architecture
 #endif
+
+const char *detect_cpu(void)
 {
     uint32_t eax = cpuid_eax(0x80000000U);
     uint32_t *caps = boot_cpu_data.x86_capability;
