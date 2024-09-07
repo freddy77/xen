@@ -64,6 +64,7 @@ SECTIONS
         DECLARE_IMPORT(multiboot_ptr);
         DECLARE_IMPORT(pvh_boot);
         DECLARE_IMPORT(pvh_start_info_pa);
+        DECLARE_IMPORT(early_boot_opts);
         //DECLARE_IMPORT();
         . = . + GAP;
         *(.text)

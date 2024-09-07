@@ -258,7 +258,7 @@ trampoline_boot_cpu_entry:
 
         .align  2
 /* Keep in sync with cmdline.c:early_boot_opts_t type! */
-early_boot_opts:
+GLOBAL(early_boot_opts)
 skip_realmode:
         .byte   0
 opt_edd:

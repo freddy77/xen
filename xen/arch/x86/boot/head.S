@@ -519,7 +519,8 @@ trampoline_setup:
 
         /* Save Multiboot / PVH info struct (after relocation) for later use. */
         mov     %ebx, %edx          /* Multiboot / PVH information address. */
-        /*      reloc(magic/eax, info/edx) using fastcall. */
+        movzbl  sym_esi(efi_platform), %ecx
+        /*      common_setup(magic/eax, info/edx, efi_platform/ecx) using fastcall. */
         call    common_setup
         test    %eax, %eax
         jnz     .Ldirect_error
@@ -541,21 +542,6 @@ trampoline_setup:
          * reserved for trampoline code and data.
          */
 
-        /* Do not parse command line on EFI platform here. */
-        cmpb    $0, sym_esi(efi_platform)
-        jnz     1f
-
-        /* Bail if there is no command line to parse. */
-        mov     sym_esi(multiboot_ptr), %ebx
-        testl   $MBI_CMDLINE,MB_flags(%ebx)
-        jz      1f
-
-        lea     sym_esi(early_boot_opts), %edx
-        mov     MB_cmdline(%ebx), %eax
-        /*      cmdline_parse_early(cmdline/eax, opts/edx) using fastcall. */
-        call    cmdline_parse_early
-
-1:
         /* Switch to low-memory stack which lives at the end of trampoline region. */
         mov     sym_esi(trampoline_phys), %edi
         lea     TRAMPOLINE_SPACE+TRAMPOLINE_STACK_SPACE(%edi),%esp

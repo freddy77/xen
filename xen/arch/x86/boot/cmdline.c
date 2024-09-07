@@ -22,6 +22,7 @@
 #include <xen/kconfig.h>
 #include <xen/macros.h>
 #include <xen/types.h>
+#include <xen/multiboot.h>
 
 #include "video.h"
 
@@ -38,6 +39,8 @@ typedef struct {
     uint16_t vesa_depth;
 #endif
 } early_boot_opts_t;
+
+extern early_boot_opts_t early_boot_opts;
 
 /* Avoid pulling in all of ctypes.h for this. */
 #define tolower(c)	((c) | 0x20)
@@ -334,11 +337,18 @@ static void vga_parse(const char *cmdline, early_boot_opts_t *ebo)
 }
 #endif
 
+extern unsigned int multiboot_ptr;
+
 /* SAF-1-safe */
-void cmdline_parse_early(const char *cmdline, early_boot_opts_t *ebo)
+void cmdline_parse_early(void)
 {
-    if ( !cmdline )
+    early_boot_opts_t *ebo = &early_boot_opts;
+    struct multiboot_info *mbi = (void *)multiboot_ptr;
+    const char *cmdline;
+
+    if ( !(mbi->flags & MBI_CMDLINE) || !mbi->cmdline )
         return;
+    cmdline = (void *)mbi->cmdline;
 
     ebo->skip_realmode = skip_realmode(cmdline);
     ebo->opt_edd = edd_parse(cmdline);
