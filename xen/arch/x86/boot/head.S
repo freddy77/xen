@@ -675,14 +675,7 @@ trampoline_setup:
         cmpb    $0, sym_esi(efi_platform)
         jnz     1f
 
-        /* Bail if there is no command line to parse. */
-        mov     sym_esi(multiboot_ptr), %ebx
-        testl   $MBI_CMDLINE,MB_flags(%ebx)
-        jz      1f
-
-        lea     sym_esi(early_boot_opts), %edx
-        mov     MB_cmdline(%ebx), %eax
-        /*      cmdline_parse_early(cmdline/eax, opts/edx) using fastcall. */
+        /*      cmdline_parse_early using fastcall. */
         call    cmdline_parse_early
 
 1:

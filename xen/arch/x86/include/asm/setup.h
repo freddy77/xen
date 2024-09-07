@@ -16,6 +16,8 @@ extern uint64_t boot_tsc_stamp;
 extern void *stack_start;
 extern unsigned int multiboot_ptr;
 
+struct domain;
+
 void early_cpu_init(bool verbose);
 void early_time_init(void);
 
