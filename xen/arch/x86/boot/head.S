@@ -119,9 +119,6 @@ multiboot2_header:
 
         .section .init.rodata, "a", @progbits
 
-.Lbad_ldr_msg: .asciz "ERR: Not a Multiboot bootloader!"
-.Lbad_ldr_nbs: .asciz "ERR: Bootloader shutdown EFI x64 boot services!"
-.Lbad_efi_msg: .asciz "ERR: EFI IA-32 platforms are not supported!"
 .Lbag_alg_msg: .asciz "ERR: Xen must be loaded at a 2Mb boundary!"
 
         .section .init.data, "aw", @progbits
@@ -144,38 +141,18 @@ efi_platform:
 
 early_error: /* Here to improve the disassembly. */
 
-.Lnot_multiboot:
-        mov     $sym_offs(.Lbad_ldr_msg), %ecx
-        jmp     .Lget_vtb
-.Lnot_aligned:
-        mov     $sym_offs(.Lbag_alg_msg), %ecx
-        jmp     .Lget_vtb
-.Lmb2_no_bs:
-        /*
-         * Ditto. Additionally, here there is a chance that Xen was started
-         * via start label. Then reliable vga_text_buffer zap is impossible
-         * in Multiboot2 scanning loop and we have to zero %edi below.
-         */
-        mov     $sym_offs(.Lbad_ldr_nbs), %ecx
-        xor     %edi,%edi                       # No VGA text buffer
-        jmp     .Lprint_err
-.Lmb2_efi_ia_32:
-        /*
-         * Here we are on EFI IA-32 platform. Then reliable vga_text_buffer zap is
-         * impossible in Multiboot2 scanning loop and we have to zero %edi below.
-         */
-        mov     $sym_offs(.Lbad_efi_msg), %ecx
-        xor     %edi,%edi                       # No VGA text buffer
-        jmp     .Lprint_err
 .Ldirect_error:
         mov     sym_esi(vga_text_buffer), %edi
         mov     %eax, %esi
+        # NOTE: No further use of sym_esi() till the end of the "function"!
         jmp     1f
-.Lget_vtb:
+
+.Lnot_aligned:
+        mov     $sym_offs(.Lbag_alg_msg), %ecx
         mov     sym_esi(vga_text_buffer), %edi
-.Lprint_err:
         add     %ecx, %esi     # Add string offset to relocation base.
         # NOTE: No further use of sym_esi() till the end of the "function"!
+
 1:
         lodsb
         test    %al,%al        # Terminate on '\0' sentinel
@@ -398,93 +375,13 @@ __start:
 1:
 #endif /* CONFIG_PVH_GUEST */
 
-        /* Bootloaders may set multiboot{1,2}.mem_lower to a nonzero value. */
-        xor     %edx,%edx
-
-        /* Check for Multiboot2 bootloader. */
-        cmp     $MULTIBOOT2_BOOTLOADER_MAGIC,%eax
-        je      .Lmultiboot2_proto
-
-        /* Check for Multiboot bootloader. */
-        cmp     $MULTIBOOT_BOOTLOADER_MAGIC,%eax
-        jne     .Lnot_multiboot
-
-        /* Get mem_lower from Multiboot information. */
-        testb   $MBI_MEMLIMITS,MB_flags(%ebx)
-
-        /* Not available? BDA value will be fine. */
-        cmovnz  MB_mem_lower(%ebx),%edx
-        jmp     trampoline_bios_setup
-
-.Lmultiboot2_proto:
-        /* Skip Multiboot2 information fixed part. */
-        lea     (MB2_fixed_sizeof+MULTIBOOT2_TAG_ALIGN-1)(%ebx),%ecx
-        and     $~(MULTIBOOT2_TAG_ALIGN-1),%ecx
-
-.Lmb2_tsize:
-        /* Check Multiboot2 information total size. */
-        mov     %ecx,%edi
-        sub     %ebx,%edi
-        cmp     %edi,MB2_fixed_total_size(%ebx)
-        jbe     trampoline_bios_setup
-
-        /* Get mem_lower from Multiboot2 information. */
-        cmpl    $MULTIBOOT2_TAG_TYPE_BASIC_MEMINFO,MB2_tag_type(%ecx)
-        cmove   MB2_mem_lower(%ecx),%edx
-        je      .Lmb2_next_tag
-
-        /* EFI IA-32 platforms are not supported. */
-        cmpl    $MULTIBOOT2_TAG_TYPE_EFI32,MB2_tag_type(%ecx)
-        je      .Lmb2_efi_ia_32
-
-        /* Bootloader shutdown EFI x64 boot services. */
-        cmpl    $MULTIBOOT2_TAG_TYPE_EFI64,MB2_tag_type(%ecx)
-        je      .Lmb2_no_bs
-
-        /* Is it the end of Multiboot2 information? */
-        cmpl    $MULTIBOOT2_TAG_TYPE_END,MB2_tag_type(%ecx)
-        je      trampoline_bios_setup
-
-.Lmb2_next_tag:
-        /* Go to next Multiboot2 information tag. */
-        add     MB2_tag_size(%ecx),%ecx
-        add     $(MULTIBOOT2_TAG_ALIGN-1),%ecx
-        and     $~(MULTIBOOT2_TAG_ALIGN-1),%ecx
-        jmp     .Lmb2_tsize
-
-trampoline_bios_setup:
-        /*
-         * Called on legacy BIOS platforms only.
-         */
-
-        /* Set up trampoline segment 64k below EBDA */
-        movzwl  0x40e,%ecx          /* EBDA segment */
-        cmp     $0xa000,%ecx        /* sanity check (high) */
-        jae     0f
-        cmp     $0x4000,%ecx        /* sanity check (low) */
-        jae     1f
-0:
-        movzwl  0x413,%ecx          /* use base memory size on failure */
-        shl     $10-4,%ecx
-1:
-        /*
-         * Compare the value in the BDA with the information from the
-         * multiboot structure (if available) and use the smallest.
-         */
-        cmp     $0x100,%edx         /* is the multiboot value too small? */
-        jb      2f                  /* if so, do not use it */
-        shl     $10-4,%edx
-        cmp     %ecx,%edx           /* compare with BDA value */
-        cmovb   %edx,%ecx           /* and use the smaller */
-
-2:
-        /* Reserve memory for the trampoline and the low-memory stack. */
-        sub     $((TRAMPOLINE_SPACE+TRAMPOLINE_STACK_SPACE)>>4),%ecx
-
-        /* From arch/x86/smpboot.c: start_eip had better be page-aligned! */
-        xor     %cl, %cl
-        shl     $4, %ecx
-        mov     %ecx,sym_esi(trampoline_phys)
+        push    %eax
+        mov     %ebx, %edx
+        call    bios_setup
+        test    %eax, %eax
+        /* TODO what about EFI and disable video ?? */
+        jnz     .Ldirect_error
+        pop     %eax
 
 trampoline_setup:
         /*

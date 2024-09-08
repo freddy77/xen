@@ -43,7 +43,7 @@ $(obj)/cbundle.o: $(head-bin-objs) $(obj)/build32.other.lds $(obj)/build32.final
 	$(PYTHON) $(srctree)/tools/combine_two_binaries \
 		--script $(obj)/build32.final.lds \
 		--bin1 $@.1.bin --bin2 $@.2.bin \
-		--map $(obj)/cbundle.map --exports common_setup \
+		--map $(obj)/cbundle.map --exports common_setup,bios_setup \
 		--section-header '.section .init.text, "ax", @progbits' \
 		--output $(obj)/cbundle.s
 	$(CC) -c $(obj)/cbundle.s -o $@.tmp
