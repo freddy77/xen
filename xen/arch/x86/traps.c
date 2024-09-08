@@ -1034,7 +1034,7 @@ int guest_wrmsr_xen(struct vcpu *v, uint32_t idx, uint64_t val)
             }
 
             gdprintk(XENLOG_WARNING,
-                     "Bad GMFN %lx (MFN %#"PRI_mfn") to MSR %08x\n",
+                     "Bad GMFN %lx (MFN %"PRI_mfn") to MSR %08x\n",
                      gmfn, mfn_x(page ? page_to_mfn(page) : INVALID_MFN), base);
             return X86EMUL_EXCEPTION;
         }

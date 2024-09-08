@@ -5,7 +5,7 @@
 #include <xen/typesafe.h>
 
 TYPE_SAFE(unsigned long, mfn);
-#define PRI_mfn          "05lx"
+#define PRI_mfn          "#lx"
 #define INVALID_MFN_RAW  (~0UL)
 #define INVALID_MFN      _mfn(INVALID_MFN_RAW)
 /*
@@ -41,7 +41,7 @@ static inline bool mfn_eq(mfn_t x, mfn_t y)
 }
 
 TYPE_SAFE(unsigned long, gfn);
-#define PRI_gfn          "05lx"
+#define PRI_gfn          "#lx"
 #define INVALID_GFN_RAW  (~0UL)
 #define INVALID_GFN      _gfn(INVALID_GFN_RAW)
 /*

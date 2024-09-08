@@ -184,7 +184,7 @@ void dump_p2m_lookup(struct domain *d, paddr_t addr)
 
     printk("dom%d IPA 0x%"PRIpaddr"\n", d->domain_id, addr);
 
-    printk("P2M @ %p mfn:%#"PRI_mfn"\n",
+    printk("P2M @ %p mfn:%"PRI_mfn"\n",
            p2m->root, mfn_x(page_to_mfn(p2m->root)));
 
     dump_pt_walk(page_to_maddr(p2m->root), addr,
@@ -1621,7 +1621,7 @@ int relinquish_p2m_mapping(struct domain *d)
                                  p2m_invalid, p2m_access_rwx);
             if ( unlikely(rc) )
             {
-                printk(XENLOG_G_ERR "Unable to remove mapping gfn=%#"PRI_gfn" order=%u from the p2m of domain %d\n", gfn_x(start), order, d->domain_id);
+                printk(XENLOG_G_ERR "Unable to remove mapping gfn=%"PRI_gfn" order=%u from the p2m of domain %d\n", gfn_x(start), order, d->domain_id);
                 break;
             }
         }

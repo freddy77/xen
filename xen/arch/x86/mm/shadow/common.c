@@ -2585,7 +2585,7 @@ pagetable_t sh_set_toplevel_shadow(struct vcpu *v,
 
  install_new_entry:
     /* Done.  Install it */
-    SHADOW_PRINTK("%u [%u] gmfn %#"PRI_mfn" smfn %#"PRI_mfn"\n",
+    SHADOW_PRINTK("%u [%u] gmfn %"PRI_mfn" smfn %"PRI_mfn"\n",
                   v->arch.paging.mode->shadow.shadow_levels, slot,
                   mfn_x(gmfn), mfn_x(pagetable_get_mfn(new_entry)));
     v->arch.paging.shadow.shadow_table[slot] = new_entry;

@@ -1164,7 +1164,7 @@ map_grant_ref(
         if ( !iomem_access_permitted(rd, mfn_x(mfn), mfn_x(mfn)) )
         {
             gdprintk(XENLOG_WARNING,
-                     "Iomem mapping not permitted %#"PRI_mfn" (domain %d)\n",
+                     "Iomem mapping not permitted %"PRI_mfn" (domain %d)\n",
                      mfn_x(mfn), rd->domain_id);
             rc = GNTST_general_error;
             goto undo_out;
@@ -1223,7 +1223,7 @@ map_grant_ref(
     {
     could_not_pin:
         if ( !rd->is_dying )
-            gdprintk(XENLOG_WARNING, "Could not pin grant frame %#"PRI_mfn"\n",
+            gdprintk(XENLOG_WARNING, "Could not pin grant frame %"PRI_mfn"\n",
                      mfn_x(mfn));
         rc = GNTST_general_error;
         goto undo_out;
@@ -1848,7 +1848,7 @@ gnttab_unpopulate_status_frames(struct domain *d, struct grant_table *gt)
             if ( rc )
             {
                 gprintk(XENLOG_ERR,
-                        "Could not remove status frame %u (GFN %#lx) from P2M\n",
+                        "Could not remove status frame %u (GFN %"PRI_gfn") from P2M\n",
                         i, gfn_x(gfn));
                 domain_crash(d);
                 return rc;
@@ -1863,7 +1863,7 @@ gnttab_unpopulate_status_frames(struct domain *d, struct grant_table *gt)
             if ( paging_mode_translate(d) )
             {
                 gprintk(XENLOG_ERR,
-                        "Wrong page state %#lx of status frame %u (GFN %#lx)\n",
+                        "Wrong page state %#lx of status frame %u (GFN %"PRI_gfn")\n",
                         pg->count_info, i, gfn_x(gfn));
                 domain_crash(d);
             }
@@ -2325,7 +2325,7 @@ gnttab_transfer(
         if ( rc )
         {
             gdprintk(XENLOG_INFO,
-                     "can't remove GFN %"PRI_xen_pfn" (MFN %#"PRI_mfn")\n",
+                     "can't remove GFN %"PRI_xen_pfn" (MFN %"PRI_mfn")\n",
                      gop.mfn, mfn_x(mfn));
             gop.status = GNTST_general_error;
             goto put_gfn_and_copyback;
@@ -2992,7 +2992,7 @@ static int gnttab_copy_claim_buf(const struct gnttab_copy *op,
         {
             if ( !buf->domain->is_dying )
                 gdprintk(XENLOG_WARNING,
-                         "Could not get writable frame %#"PRI_mfn"\n",
+                         "Could not get writable frame %"PRI_mfn"\n",
                          mfn_x(buf->mfn));
             rc = GNTST_general_error;
             goto out;
@@ -3981,9 +3981,9 @@ void grant_table_warn_active_grants(struct domain *d)
         if ( nr_active <= WARN_GRANT_MAX )
             printk(XENLOG_G_DEBUG "d%d has active grant %x ("
 #ifndef NDEBUG
-                   "GFN %lx, "
+                   "GFN %"PRI_gfn", "
 #endif
-                   "MFN: %#"PRI_mfn")\n",
+                   "MFN: %"PRI_mfn")\n",
                    d->domain_id, ref,
 #ifndef NDEBUG
                    gfn_x(act->gfn),
@@ -4334,7 +4334,7 @@ static void gnttab_usage_print(struct domain *rd)
         first = 0;
 
         /*      [0xXXX]  ddddd 0xXXXXX 0xXXXXXXXX      ddddd 0xXXXXXX 0xXX */
-        printk("[0x%03x]  %5d 0x%"PRI_mfn" 0x%08x      %5d 0x%06"PRIx64" 0x%02x\n",
+        printk("[0x%03x]  %5d %"PRI_mfn" 0x%08x      %5d 0x%06"PRIx64" 0x%02x\n",
                ref, act->domid, mfn_x(act->mfn), act->pin,
                sha->domid, frame, status);
         active_entry_release(act);

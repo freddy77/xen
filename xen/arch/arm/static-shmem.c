@@ -357,7 +357,7 @@ int __init process_shm(struct domain *d, struct kernel_info *kinfo,
             for ( i = 0; i < PFN_DOWN(psize); i++ )
                 if ( !mfn_valid(mfn_add(maddr_to_mfn(pbase), i)) )
                 {
-                    printk("%pd: invalid physical address 0x%"PRI_mfn"\n",
+                    printk("%pd: invalid physical address %"PRI_mfn"\n",
                         d, mfn_x(mfn_add(maddr_to_mfn(pbase), i)));
                     return -EINVAL;
                 }

@@ -279,7 +279,7 @@ static void enable_hypercall_page(struct domain *d)
     {
         if ( page )
             put_page(page);
-        gdprintk(XENLOG_WARNING, "Bad GMFN %#"PRI_gfn" (MFN %#"PRI_mfn")\n",
+        gdprintk(XENLOG_WARNING, "Bad GMFN %"PRI_gfn" (MFN %"PRI_mfn")\n",
                  gmfn, mfn_x(page ? page_to_mfn(page) : INVALID_MFN));
         return;
     }
@@ -1090,7 +1090,7 @@ void viridian_map_guest_page(struct domain *d, struct viridian_page *vp)
     return;
 
  fail:
-    gdprintk(XENLOG_WARNING, "Bad GMFN %#"PRI_gfn" (MFN %#"PRI_mfn")\n",
+    gdprintk(XENLOG_WARNING, "Bad GMFN %"PRI_gfn" (MFN %"PRI_mfn")\n",
              gmfn, mfn_x(page ? page_to_mfn(page) : INVALID_MFN));
 }
 

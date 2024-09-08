@@ -362,7 +362,7 @@ static bool xen_pt_check_entry(lpae_t entry, mfn_t mfn, unsigned int level,
         if ( lpae_is_valid(entry) )
         {
             if ( lpae_is_mapping(entry, level) )
-                mm_printk("Changing MFN for a valid entry is not allowed (%#"PRI_mfn" -> %#"PRI_mfn").\n",
+                mm_printk("Changing MFN for a valid entry is not allowed (%"PRI_mfn" -> %"PRI_mfn").\n",
                           mfn_x(lpae_get_mfn(entry)), mfn_x(mfn));
             else
                 mm_printk("Trying to replace a table with a mapping.\n");

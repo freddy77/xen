@@ -1066,7 +1066,7 @@ static int set_typed_p2m_entry(struct domain *d, unsigned long gfn_l,
     rc = p2m_set_entry(p2m, gfn, mfn, order, gfn_p2mt, access);
     if ( unlikely(rc) )
     {
-        gdprintk(XENLOG_ERR, "p2m_set_entry: %#lx:%u -> %d (0x%"PRI_mfn")\n",
+        gdprintk(XENLOG_ERR, "p2m_set_entry: %#lx:%u -> %d (%"PRI_mfn")\n",
                  gfn_l, order, rc, mfn_x(mfn));
 
         /*

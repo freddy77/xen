@@ -196,7 +196,7 @@ int map_dev_mmio_page(struct domain *d, gfn_t gfn, mfn_t mfn)
     res = p2m_insert_mapping(d, gfn, 1, mfn, p2m_mmio_direct_c);
     if ( res < 0 )
     {
-        printk(XENLOG_G_ERR "Unable to map MFN %#"PRI_mfn" in %pd\n",
+        printk(XENLOG_G_ERR "Unable to map MFN %"PRI_mfn" in %pd\n",
                mfn_x(mfn), d);
         return res;
     }
@@ -566,7 +566,7 @@ struct page_info *get_page_from_gva(struct vcpu *v, vaddr_t va,
 
     if ( !mfn_valid(mfn) )
     {
-        dprintk(XENLOG_G_DEBUG, "%pv: Invalid MFN %#"PRI_mfn"\n",
+        dprintk(XENLOG_G_DEBUG, "%pv: Invalid MFN %"PRI_mfn"\n",
                 v, mfn_x(mfn));
         return NULL;
     }
@@ -576,7 +576,7 @@ struct page_info *get_page_from_gva(struct vcpu *v, vaddr_t va,
 
     if ( unlikely(!get_page(page, d)) )
     {
-        dprintk(XENLOG_G_DEBUG, "%pv: Failing to acquire the MFN %#"PRI_mfn"\n",
+        dprintk(XENLOG_G_DEBUG, "%pv: Failing to acquire the MFN %"PRI_mfn"\n",
                 v, mfn_x(maddr_to_mfn(maddr)));
         return NULL;
     }

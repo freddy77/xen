@@ -826,7 +826,7 @@ bool __init iommu_unity_region_ok(const char *prefix, mfn_t start, mfn_t end)
                                 mfn_to_maddr(addr) + PAGE_SIZE, E820_RESERVED) )
                 continue;
             printk(XENLOG_ERR
-                   "%s: page at %#" PRI_mfn " couldn't be reserved\n",
+                   "%s: page at %" PRI_mfn " couldn't be reserved\n",
                    prefix, mfn_x(addr));
             return false;
         }
@@ -842,7 +842,7 @@ bool __init iommu_unity_region_ok(const char *prefix, mfn_t start, mfn_t end)
             continue;
 
         printk(XENLOG_ERR
-               "%s: page at %#" PRI_mfn " can't be converted\n",
+               "%s: page at %" PRI_mfn " can't be converted\n",
                prefix, mfn_x(addr));
         return false;
     }

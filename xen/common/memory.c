@@ -229,7 +229,7 @@ static void populate_physmap(struct memop_args *a)
                 {
                     if ( !mfn_valid(mfn) )
                     {
-                        gdprintk(XENLOG_INFO, "Invalid mfn %#"PRI_mfn"\n",
+                        gdprintk(XENLOG_INFO, "Invalid mfn %"PRI_mfn"\n",
                                  mfn_x(mfn));
                         goto out;
                     }
@@ -238,7 +238,7 @@ static void populate_physmap(struct memop_args *a)
                     if ( !get_page(page, d) )
                     {
                         gdprintk(XENLOG_INFO,
-                                 "mfn %#"PRI_mfn" doesn't belong to d%d\n",
+                                 "mfn %"PRI_mfn" doesn't belong to d%d\n",
                                   mfn_x(mfn), d->domain_id);
                         goto out;
                     }
