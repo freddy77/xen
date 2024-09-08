@@ -9,6 +9,7 @@ const char *detect_cpu(void);
 void setup_pages(void);
 void reloc_trampoline(void);
 void cmdline_parse_early(void);
+void copy_trampoline(void);
 
 const char *common_setup(uint32_t magic, uint32_t in, bool efi_platform)
 {
@@ -28,6 +29,9 @@ const char *common_setup(uint32_t magic, uint32_t in, bool efi_platform)
     /* Do not parse command line on EFI platform here. */
     if ( !efi_platform )
         cmdline_parse_early();
+
+    /* Copy bootstrap trampoline to low memory, below 1MB. */
+    copy_trampoline();
 
     return err;
 }

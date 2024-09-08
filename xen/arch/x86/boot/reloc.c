@@ -25,6 +25,7 @@
 #include <xen/multiboot2.h>
 #include <xen/page-size.h>
 #include <xen/bug.h>
+#include <xen/string.h>
 
 #include <asm/trampoline.h>
 
@@ -391,6 +392,12 @@ void reloc(uint32_t magic, uint32_t in)
 #endif
 
     multiboot_ptr = (unsigned long)res;
+}
+
+void copy_trampoline(void)
+{
+    memcpy(_p(trampoline_phys), trampoline_start,
+           trampoline_end - trampoline_start);
 }
 
 /*

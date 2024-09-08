@@ -549,11 +549,6 @@ trampoline_setup:
         pushl   $BOOT_CS32
         push    %eax
 
-        /* Copy bootstrap trampoline to low memory, below 1MB. */
-        lea     sym_esi(trampoline_start), %esi
-        mov     $((trampoline_end - trampoline_start) / 4),%ecx
-        rep movsl
-
         /* Jump into the relocated trampoline. */
         lret
 
