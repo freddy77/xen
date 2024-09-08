@@ -58,9 +58,9 @@ static const char *bios_setup_mb2(const multiboot2_fixed_t * mbi_fix, uint32_t *
           tag = _p(ROUNDUP((unsigned long)tag + tag->size, MULTIBOOT2_TAG_ALIGN)) )
     {
         if ( tag->type == MULTIBOOT2_TAG_TYPE_EFI32 )
-            return "ERR: EFI IA-32 platforms are not supported!";
+            return "\001ERR: EFI IA-32 platforms are not supported!";
         if ( tag->type == MULTIBOOT2_TAG_TYPE_EFI64 )
-            return "ERR: Bootloader shutdown EFI x64 boot services!";
+            return "\001ERR: Bootloader shutdown EFI x64 boot services!";
         if ( tag->type == MULTIBOOT2_TAG_TYPE_BASIC_MEMINFO )
             *mem_lower = ((const multiboot2_tag_basic_meminfo_t *)tag)->mem_lower;
     }

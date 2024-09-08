@@ -143,6 +143,11 @@ early_error: /* Here to improve the disassembly. */
 
 .Ldirect_error:
         mov     sym_esi(vga_text_buffer), %edi
+        cmpb    $1, (%eax)
+        jne     1f
+        inc     %eax
+        xor     %edi, %edi
+1:
         mov     %eax, %esi
         # NOTE: No further use of sym_esi() till the end of the "function"!
         jmp     1f
@@ -379,8 +384,7 @@ __start:
         mov     %ebx, %edx
         call    bios_setup
         test    %eax, %eax
-        /* TODO what about EFI and disable video ?? */
-        jnz     .Ldirect_error
+        jnz    .Ldirect_error
         pop     %eax
 
 trampoline_setup:
