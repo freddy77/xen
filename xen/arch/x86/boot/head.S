@@ -27,6 +27,7 @@
 
 #define BOOT_TYPE_BIOS 1
 #define BOOT_TYPE_PVH 2
+#define BOOT_TYPE_EFI 3
 
         .macro mb2ht_args arg:req, args:vararg
         .long \arg
@@ -130,9 +131,6 @@ gdt_boot_base:
 vga_text_buffer:
         .long   0xb8000
 
-efi_platform:
-        .byte   0
-
         .section .init.text, "ax", @progbits
 
 early_error: /* Here to improve the disassembly. */
@@ -230,7 +228,7 @@ __efi64_mb2_start:
         pop     %rax
 
         /* We are on EFI platform and EFI boot services are available. */
-        incb    efi_platform(%rip)
+        mov     $BOOT_TYPE_EFI, %dl
 
         /*
          * Disable real mode and other legacy stuff which should not
@@ -255,29 +253,29 @@ x86_32_switch:
 
         /* Reload code selector. */
         pushq   $BOOT_CS32
-        lea     cs32_switch(%rip),%edx
-        push    %rdx
+        lea     cs32_switch(%rip), %ecx
+        push    %rcx
         lretq
 
         .code32
 
 cs32_switch:
         /* Initialize basic data segments. */
-        mov     $BOOT_DS,%edx
-        mov     %edx,%ds
-        mov     %edx,%es
-        mov     %edx,%ss
+        mov     $BOOT_DS, %ecx
+        mov     %ecx, %ds
+        mov     %ecx, %es
+        mov     %ecx, %ss
         /* %esp is initialized later. */
 
         /* Load null descriptor to unused segment registers. */
-        xor     %edx,%edx
-        mov     %edx,%fs
-        mov     %edx,%gs
+        xor     %ecx, %ecx
+        mov     %ecx, %fs
+        mov     %ecx, %gs
 
         /* Disable paging. */
-        mov     %cr0,%edx
-        and     $(~X86_CR0_PG),%edx
-        mov     %edx,%cr0
+        mov     %cr0, %ecx
+        and     $(~X86_CR0_PG),%ecx
+        mov     %ecx, %cr0
 
         /* Jump to earlier loaded address. */
         jmp     *%edi
@@ -381,11 +379,10 @@ trampoline_setup:
          */
 
         /* Relocate pagetables to point at Xen's current location in memory. */
-        mov     $_PAGE_PRESENT, %edx
         lea     sym_esi(__page_tables_start), %edi
         lea     sym_esi(__page_tables_end), %ecx
 
-1:      test    %edx, (%edi) /* if page present */
+1:      test    $_PAGE_PRESENT, (%edi) /* if page present */
         jz      2f
         add     %esi, (%edi) /* pte += base */
 2:      add     $8, %edi
@@ -402,8 +399,10 @@ trampoline_setup:
         mov     %esi, sym_esi(trampoline_xen_phys_start)
 
         /* Save Multiboot / PVH info struct (after relocation) for later use. */
+        xor     %ecx, %ecx
+        cmp     $BOOT_TYPE_EFI, %dl
+        sete    %cl
         mov     %ebx, %edx          /* Multiboot / PVH information address. */
-        movzbl  sym_esi(efi_platform), %ecx
         /*      common_setup(magic/eax, info/edx, efi_platform/ecx) using fastcall. */
         call    common_setup
         test    %eax, %eax
