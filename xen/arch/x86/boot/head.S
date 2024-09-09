@@ -117,10 +117,6 @@ multiboot2_header:
         .size multiboot2_header, . - multiboot2_header
         .type multiboot2_header, @object
 
-        .section .init.rodata, "a", @progbits
-
-.Lbag_alg_msg: .asciz "ERR: Xen must be loaded at a 2Mb boundary!"
-
         .section .init.data, "aw", @progbits
         .align 4
 
@@ -400,14 +396,6 @@ trampoline_setup:
         .if !IS_ALIGNED(sym_offs(0), 1 << L2_PAGETABLE_SHIFT)
         .error "Symbol offset calculation breaks alignment"
         .endif
-
-        /* Check that the image base is aligned. */
-        push    %eax
-        lea     sym_esi(_start), %edi
-        lea     sym_esi(.Lbag_alg_msg), %eax
-        test    $(1 << L2_PAGETABLE_SHIFT) - 1, %edi
-        jnz     .Ldirect_error
-        pop     %eax
 
         /* Save Xen image load base address for later use. */
         mov     %esi, sym_esi(xen_phys_start)

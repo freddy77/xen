@@ -6,6 +6,7 @@
 #include <xen/multiboot.h>
 #include <xen/multiboot2.h>
 #include <xen/page-size.h>
+#include <xen/kernel.h>
 
 #include <asm/trampoline.h>
 
@@ -19,6 +20,10 @@ void copy_trampoline(void);
 const char *common_setup(uint32_t magic, uint32_t in, bool efi_platform)
 {
     const char *err;
+
+    /* Check that the image base is aligned. */
+    if ( (unsigned long)_start & ((1 << L2_PAGETABLE_SHIFT) - 1) )
+        return "ERR: Xen must be loaded at a 2Mb boundary!";
 
     reloc(magic, in);
 
