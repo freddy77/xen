@@ -150,15 +150,7 @@ early_error: /* Here to improve the disassembly. */
 1:
         mov     %eax, %esi
         # NOTE: No further use of sym_esi() till the end of the "function"!
-        jmp     1f
 
-.Lnot_aligned:
-        mov     $sym_offs(.Lbag_alg_msg), %ecx
-        mov     sym_esi(vga_text_buffer), %edi
-        add     %ecx, %esi     # Add string offset to relocation base.
-        # NOTE: No further use of sym_esi() till the end of the "function"!
-
-1:
         lodsb
         test    %al,%al        # Terminate on '\0' sentinel
         je      .Lhalt
@@ -410,9 +402,12 @@ trampoline_setup:
         .endif
 
         /* Check that the image base is aligned. */
+        push    %eax
         lea     sym_esi(_start), %edi
+        lea     sym_esi(.Lbag_alg_msg), %eax
         test    $(1 << L2_PAGETABLE_SHIFT) - 1, %edi
-        jnz     .Lnot_aligned
+        jnz     .Ldirect_error
+        pop     %eax
 
         /* Save Xen image load base address for later use. */
         mov     %esi, sym_esi(xen_phys_start)
