@@ -38,7 +38,7 @@ asm (
 #include "video.h"
 
 /* Keep in sync with trampoline.S:early_boot_opts label! */
-typedef struct __packed {
+typedef struct {
     uint8_t skip_realmode;
     uint8_t opt_edd;
     uint8_t opt_edid;
