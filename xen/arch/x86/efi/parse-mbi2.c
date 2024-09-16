@@ -22,6 +22,7 @@ efi_parse_mbi2(uint32_t magic, const multiboot2_fixed_t *mbi)
     EFI_HANDLE ImageHandle = NULL;
     EFI_SYSTEM_TABLE *SystemTable = NULL;
     const char *cmdline = NULL;
+    const void *const mbi_end = (const void *)mbi + mbi->total_size;
     bool have_bs = false;
 
     if ( magic != MULTIBOOT2_BOOTLOADER_MAGIC )
@@ -30,7 +31,9 @@ efi_parse_mbi2(uint32_t magic, const multiboot2_fixed_t *mbi)
     /* Skip Multiboot2 information fixed part. */
     tag = _p(ROUNDUP((unsigned long)(mbi + 1), MULTIBOOT2_TAG_ALIGN));
 
-    for ( ; (const void *)tag - (const void *)mbi < mbi->total_size
+    for ( ; (const void *)(tag + 1) <= mbi_end
+            && tag->size >= sizeof(*tag)
+            && (const void *)tag + tag->size <= mbi_end
             && tag->type != MULTIBOOT2_TAG_TYPE_END;
           tag = _p(ROUNDUP((unsigned long)((const void *)tag + tag->size),
                    MULTIBOOT2_TAG_ALIGN)) )
