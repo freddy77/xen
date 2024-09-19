@@ -209,6 +209,10 @@ SECTIONS
 
   } PHDR(text)
 
+#ifdef EFI
+  /* align to satisfy UEFI CA memory mitigation */
+  . = ALIGN(PAGE_SIZE);
+#endif
   DECL_SECTION(.init.data) {
        *(.init.bss.stack_aligned)
 
@@ -263,6 +267,10 @@ SECTIONS
        __ctors_end = .;
   } PHDR(text)
 
+#ifdef EFI
+  /* align to satisfy UEFI CA memory mitigation */
+  . = ALIGN(PAGE_SIZE);
+#endif
   DECL_SECTION(.init.trampoline) {
        *(.init.trampoline)
   } PHDR(text)
