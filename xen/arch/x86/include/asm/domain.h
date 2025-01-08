@@ -288,9 +288,6 @@ struct pv_domain
     /* Mitigate L1TF with shadow/crashing? */
     bool check_l1tf;
 
-    /* map_domain_page() mapping cache. */
-    struct mapcache_domain mapcache;
-
     struct cpuidmasks *cpuidmasks;
 };
 
@@ -328,6 +325,9 @@ struct arch_domain
     uint8_t cmos_idx;
 
     uint8_t scf; /* See SCF_DOM_MASK */
+
+    /* map_domain_page() mapping cache. */
+    struct mapcache_domain mapcache;
 
     union {
         struct pv_domain pv;
@@ -521,9 +521,6 @@ struct arch_domain
 
 struct pv_vcpu
 {
-    /* map_domain_page() mapping cache. */
-    struct mapcache_vcpu mapcache;
-
     unsigned int vgc_flags;
 
     struct trap_info *trap_ctxt;
@@ -618,6 +615,9 @@ struct arch_vcpu
     } async_exception_state[VCPU_TRAP_LAST];
 #define async_exception_state(t) async_exception_state[(t)-1]
     uint8_t async_exception_mask;
+
+    /* map_domain_page() mapping cache. */
+    struct mapcache_vcpu mapcache;
 
     /* Virtual Machine Extensions */
     union {
