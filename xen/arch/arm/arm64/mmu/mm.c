@@ -7,6 +7,7 @@
 #include <xen/static-memory.h>
 #include <xen/static-shmem.h>
 
+#include <asm/domain_page.h>
 #include <asm/setup.h>
 
 /* Override macros from asm/page.h to make them work with mfn_t */
@@ -282,6 +283,14 @@ void __init setup_mm(void)
     directmap_mfn_end = maddr_to_mfn(ram_end);
 
     setup_frametable_mappings(ram_start, ram_end);
+
+    /*
+     * The allocators may need to use map_domain_page() (such as for
+     * scrubbing pages). So we need to prepare the domheap area first.
+     */
+    if ( !init_domheap_mappings(smp_processor_id()) )
+        panic("CPU%u: Unable to prepare the domheap page-tables\n",
+              smp_processor_id());
 
     init_staticmem_pages();
     init_sharedmem_pages();
