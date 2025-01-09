@@ -40,8 +40,12 @@ LD32 := $(LD) $(subst x86_64,i386,$(LDFLAGS_DIRECT))
 # are affected by both text_diff and text_gap.  Ensure the sum of gap and diff
 # is greater than 2^16 so that any 16bit relocations if present in the object
 # file turns into a build-time error.
-text_gap := 0x010200
-text_diff := 0x408020
+# As gap will affect the output section size it should not be huge to avoid the
+# creation of huge files.
+# The sum of gap and diff will affect the possible alignment so should be a
+# multiple of the possible alignment.
+text_gap := 0x01c240
+text_diff := 0x7e3dc0
 
 $(obj)/build32.base.lds: AFLAGS-y += -DGAP=$(text_gap) -DTEXT_DIFF=$(text_diff)
 $(obj)/build32.offset.lds: AFLAGS-y += -DGAP=$(text_gap) -DTEXT_DIFF=$(text_diff) -DAPPLY_OFFSET
@@ -69,7 +73,6 @@ $(obj)/built-in-32.%.bin: $(obj)/build32.%.lds $(obj)/built-in-32.tmp.o
 	$(LD32) $(orphan-handling-y) -N -T $< -o $(@:bin=o) $(filter %.o,$^)
 	$(NM) -p --format=bsd $(@:bin=o) > $(@:bin=map)
 	$(OBJCOPY) -j .text -O binary $(@:bin=o) $@
-	rm -f $(@:bin=o)
 
 quiet_cmd_combine = GEN     $@
 cmd_combine = \
@@ -80,6 +83,7 @@ cmd_combine = \
               --bin1      $(obj)/built-in-32.base.bin \
               --bin2      $(obj)/built-in-32.offset.bin \
               --map       $(obj)/built-in-32.base.map \
+              --align     $(shell $(OBJDUMP) -h $(obj)/built-in-32.base.o|sed '/text.*2\*\*/ {s/.*2\*\*//;p;}; d') \
               --exports   cmdline_parse_early,reloc,reloc_trampoline32 \
               --output    $@
 
@@ -90,4 +94,4 @@ $(obj)/built-in-32.S: $(obj)/built-in-32.base.bin $(obj)/built-in-32.offset.bin 
                       $(srctree)/tools/combine_two_binaries.py FORCE
 	$(call if_changed,combine)
 
-clean-files := built-in-32.*.bin built-in-32.*.map build32.*.lds
+clean-files := built-in-32.*.bin built-in-32.*.map built-in-32.*.o build32.*.lds
